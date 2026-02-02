@@ -1,19 +1,31 @@
 import streamlit as st
-import base64
+import google.generativeai as genai
+from PIL import Image
 
-st.set_page_config(page_title="AI Project Manager", page_icon="📥")
+st.title("My AI Project Manager (Gemini Edition) 🤖")
 
-st.title("ניהול פרויקט אישי - ה-Inbox שלי 📥")
-st.write("מנהלת פרויקטים יקרה, האתר שלך באוויר!")
+# קבלת מפתח ה-API מהמשתמש
+api_key = st.sidebar.text_input("הכניסי Google API Key", type="password")
 
-# תיבת העלאה
-uploaded_file = st.file_uploader("תעלי תמונה או מסמך", type=['png', 'jpg', 'jpeg'])
+uploaded_file = st.file_uploader("תעלי תמונה של משימות/לוח", type=['png', 'jpg', 'jpeg'])
 
-if uploaded_file:
-    # המרה ל-Base64
-    file_bytes = uploaded_file.getvalue()
-    base64_string = base64.b64encode(file_bytes).decode()
+if uploaded_file and api_key:
+    # הגדרת המודל
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
-    st.image(uploaded_file, caption="נקלט בהצלחה", width=300)
-    st.success("הקובץ מוכן לעיבוד AI!")
-    st.expander("קוד ה-Base64 של התמונה").text(base64_string[:100] + "...")
+    image = Image.open(uploaded_file)
+    st.image(image, caption="הקובץ נקלט!", width=300)
+    
+    if st.button("נתחי משימות"):
+        with st.spinner("Gemini מנתח את התמונה..."):
+            try:
+                # שליחת התמונה ל-AI
+                response = model.generate_content([
+                    "אתה עוזר אישי לניהול פרויקטים. תסתכל על התמונה ותמצת לי: מה המשימות שמופיעות כאן ומה סדר העדיפויות המומלץ?", 
+                    image
+                ])
+                st.subheader("התובנות של ה-AI:")
+                st.write(response.text)
+            except Exception as e:
+                st.error(f"שגיאה: {e}")
