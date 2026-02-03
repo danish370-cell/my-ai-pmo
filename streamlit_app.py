@@ -17,19 +17,21 @@ if uploaded_file:
     
     if st.button("🚀 נתחי משימות עכשיו"):
         if not api_key:
-            st.error("חסר מפתח API!")
+            st.error("אנא הכניסי API Key בתפריט הצד!")
         else:
             try:
+                # הגדרה פשוטה וישירה
                 genai.configure(api_key=api_key)
-                # שימוש במודל העדכני ביותר ל-2026
                 model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 with st.spinner("מנתחת..."):
+                    # שליחת התמונה לניתוח
                     response = model.generate_content([
-                        "נתח את המשימות בתמונה וסדר אותן בעברית.", 
+                        "אתה עוזר ניהול פרויקטים. נתח את התמונה וחלץ משימות בעברית.", 
                         image
                     ])
                     st.success("הנה הניתוח:")
                     st.write(response.text)
             except Exception as e:
+                # הדפסת השגיאה המלאה כדי שנבין אם משהו אחר השתבש
                 st.error(f"אירעה שגיאה: {e}")
