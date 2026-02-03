@@ -22,7 +22,7 @@ if uploaded_file:
             try:
                 genai.configure(api_key=api_key)
                 # שימוש במודל העדכני ביותר ל-2026
-                model = genai.GenerativeModel('gemini-2.0-flash')
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 with st.spinner("מנתחת..."):
                     response = model.generate_content([
