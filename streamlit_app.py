@@ -15,23 +15,27 @@ if uploaded_file:
     image = Image.open(uploaded_file)
     st.image(image, caption="התמונה הועלתה", use_column_width=True)
     
-    if st.button("🚀 נתחי משימות עכשיו"):
+    if st.button("🚀 נתחי משימות"):
         if not api_key:
-            st.error("אנא הכניסי API Key בתפריט הצד!")
+            st.error("אנא הכניסי API Key!")
         else:
             try:
-                # הגדרה פשוטה וישירה
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                # בדיקה אילו מודלים זמינים למפתח שלך
+                available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+                
+                # נסיון להשתמש ב-flash, ואם לא - בראשון שזמין
+                model_name = 'models/gemini-1.5-flash' if 'models/gemini-1.5-flash' in available_models else available_models[0]
+                
+                st.write(f"מתחברת למודל: {model_name}") # זה יעזור לנו להבין מה קורה
+                
+                model = genai.GenerativeModel(model_name)
                 
                 with st.spinner("מנתחת..."):
-                    # שליחת התמונה לניתוח
-                    response = model.generate_content([
-                        "אתה עוזר ניהול פרויקטים. נתח את התמונה וחלץ משימות בעברית.", 
-                        image
-                    ])
+                    response = model.generate_content(["נתח את המשימות בתמונה בעברית", image])
                     st.success("הנה הניתוח:")
                     st.write(response.text)
+                    
             except Exception as e:
-                # הדפסת השגיאה המלאה כדי שנבין אם משהו אחר השתבש
                 st.error(f"אירעה שגיאה: {e}")
